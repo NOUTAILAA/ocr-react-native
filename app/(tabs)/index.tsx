@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Button, Image, StyleSheet, Alert } from 'react-native';
+import { View, Button, Image, Text, StyleSheet, Alert, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
 export default function HomeScreen() {
   const [image, setImage] = useState<string | null>(null);
+  const [ocrResult, setOcrResult] = useState<{ [key: string]: string } | null>(null);
 
   // Sélectionner une image depuis la galerie
   const pickImage = async () => {
@@ -22,6 +23,7 @@ export default function HomeScreen() {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      setOcrResult(null);  // Réinitialiser le résultat précédent
     }
   };
 
@@ -40,6 +42,7 @@ export default function HomeScreen() {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      setOcrResult(null);  // Réinitialiser le résultat précédent
     }
   };
 
@@ -64,7 +67,13 @@ export default function HomeScreen() {
       const response = await axios.post('http://192.168.1.102:5000/upload_cin', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      Alert.alert('Succès', 'Image envoyée avec succès');
+
+      if (response.status === 201) {
+        setOcrResult(response.data);  // Stocker le résultat OCR
+        Alert.alert('Succès', 'Image envoyée avec succès');
+      } else {
+        Alert.alert('Erreur', 'Échec de l\'envoi de l\'image');
+      }
     } catch (error) {
       Alert.alert('Erreur', 'Échec de l\'envoi de l\'image');
       console.error(error);
@@ -72,25 +81,56 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Button title="Choisir depuis la galerie" onPress={pickImage} />
       <Button title="Prendre une photo" onPress={takePhoto} />
+      
       {image && <Image source={{ uri: image }} style={styles.image} />}
+      
       <Button title="Envoyer l'image" onPress={uploadImage} />
-    </View>
+      
+      {ocrResult && (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultTitle}>Résultats OCR :</Text>
+          {Object.entries(ocrResult).map(([key, value]) => (
+            <Text key={key} style={styles.resultText}>
+              <Text style={styles.fieldName}>{key}:</Text> {value}
+            </Text>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
     gap: 16,
   },
   image: {
     width: 300,
     height: 300,
     marginTop: 20,
+  },
+  resultContainer: {
+    marginTop: 20,
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  resultTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  resultText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  fieldName: {
+    fontWeight: 'bold',
   },
 });
