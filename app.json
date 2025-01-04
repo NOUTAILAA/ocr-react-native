@@ -13,7 +13,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "Cette application a besoin d'accéder à votre caméra pour capturer des photos.",
         "NSPhotoLibraryUsageDescription": "Cette application a besoin d'accéder à votre galerie pour sélectionner des images."
-      }
+      },
+      "bundleIdentifier": "com.anonymous.imageuploader"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,10 +22,12 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ]
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.imageuploader"
     },
     "web": {
       "bundler": "metro",
@@ -48,10 +51,27 @@
           "photosPermission": "L'application a besoin d'accéder à vos photos.",
           "cameraPermission": "L'application a besoin d'utiliser la caméra."
         }
+      ],
+      [
+        "react-native-permissions",
+        {
+          "iosPermissions": [
+            "CAMERA",
+            "PHOTO_LIBRARY"
+          ]
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "496e8492-8f45-484c-93dd-69163b06f1e3"
+      }
     }
   }
 }
