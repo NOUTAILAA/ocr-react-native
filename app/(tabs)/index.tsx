@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Button, Image, Text, StyleSheet, Alert, ScrollView, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 export default function HomeScreen() {
   const [image, setImage] = useState<string | null>(null);
@@ -26,7 +27,6 @@ export default function HomeScreen() {
     })();
   }, [permission]);
 
-  // Ouvrir la caméra
   const openCamera = () => {
     if (permission?.granted) {
       setCameraOpen(true);
@@ -35,12 +35,13 @@ export default function HomeScreen() {
     }
   };
 
-  // Prendre une photo
   const takePhoto = async () => {
     if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync();
+
       if (photo) {
-        setImage(photo.uri);
+        const croppedImage = await cropImageToFrame(photo);
+        setImage(croppedImage.uri);
         setCameraOpen(false);
         setOcrResult(null);
       } else {
@@ -48,9 +49,30 @@ export default function HomeScreen() {
       }
     }
   };
-  
 
-  // Sélectionner une image depuis la galerie
+  const cropImageToFrame = async (photo: any) => {
+    const scaleFactor = photo.width / Dimensions.get('window').width;
+    const cropX = (screenWidth - frameWidth) / 2 * scaleFactor;
+    const cropY = (photo.height - frameHeight * scaleFactor) / 2;
+    const cropWidth = frameWidth * scaleFactor;
+    const cropHeight = frameHeight * scaleFactor;
+
+    return await ImageManipulator.manipulateAsync(
+      photo.uri,
+      [
+        {
+          crop: {
+            originX: cropX,
+            originY: cropY,
+            width: cropWidth,
+            height: cropHeight,
+          },
+        },
+      ],
+      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+    );
+  };
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -70,7 +92,6 @@ export default function HomeScreen() {
     }
   };
 
-  // Envoyer l'image au backend Flask
   const uploadImage = async () => {
     if (!image) {
       Alert.alert('Erreur', 'Veuillez capturer ou sélectionner une image.');
@@ -111,7 +132,7 @@ export default function HomeScreen() {
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
           facing="back"
-          />
+        />
         <View style={[styles.overlayFrame, { width: frameWidth, height: frameHeight }]} />
         <Button title="Prendre la photo" onPress={takePhoto} />
         <Button title="Fermer la caméra" onPress={() => setCameraOpen(false)} />
@@ -141,7 +162,6 @@ export default function HomeScreen() {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
