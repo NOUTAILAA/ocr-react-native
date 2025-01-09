@@ -11,7 +11,6 @@ export default function HomeScreen() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
-
   const screenWidth = Dimensions.get('window').width;
   const frameWidth = screenWidth * 0.9;
   const frameHeight = (frameWidth / 1318) * 832;
@@ -109,7 +108,7 @@ export default function HomeScreen() {
     } as any);
 
     try {
-      const response = await axios.post('http://192.168.1.102:5000/upload_cin', formData, {
+      const response = await axios.post('http://24.10.17.191:5000/upload_cin', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -204,4 +203,4 @@ const styles = StyleSheet.create({
   fieldName: {
     fontWeight: 'bold',
   },
-});
+}); 
