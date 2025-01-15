@@ -7,7 +7,7 @@ export default function ForgotPasswordScreen() {
 
   const handleForgotPassword = async () => {
     try {
-      const response = await axios.post('http://192.168.100.45:5001/forgot_password', { email });
+      const response = await axios.post('http://192.168.1.102:5001/forgot_password', { email });
       Alert.alert('Succès', response.data.message);
     } catch (error) {
       Alert.alert('Erreur', error.response?.data?.error || 'Une erreur est survenue');

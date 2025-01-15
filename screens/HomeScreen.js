@@ -49,7 +49,7 @@ export default function HomeScreen() {
     });
 
     try {
-      const response = await axios.post('http://192.168.100.45:5000/upload_cin', formData, {
+      const response = await axios.post('http://192.168.1.102:5000/upload_cin', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

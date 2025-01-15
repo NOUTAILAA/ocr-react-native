@@ -8,7 +8,7 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://192.168.100.45:5001/login', { email, password });
+      const response = await axios.post('http://192.168.1.102:5001/login', { email, password });
       Alert.alert('Succès', response.data.message);
       navigation.navigate('OTP'); // Aller à l'écran OTP
     } catch (error) {

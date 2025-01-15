@@ -8,7 +8,7 @@ export default function OTPScreen({ navigation }) {
 
   const handleVerifyOTP = async () => {
     try {
-      const response = await axios.post('http://192.168.100.45:5001/verify_otp', { email, otp });
+      const response = await axios.post('http://192.168.1.102:5001/verify_otp', { email, otp });
       Alert.alert('Succès', 'Connexion réussie!');
       navigation.navigate('Home');
     } catch (error) {
