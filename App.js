@@ -8,7 +8,7 @@ import RegisterScreen from './screens/RegisterScreen';
 import OTPScreen from './screens/OTPScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import HomeScreen from './screens/HomeScreen';
-
+import Home from './screens/Home';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -20,6 +20,7 @@ export default function App() {
         <Stack.Screen name="OTP" component={OTPScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Homee" component={Home} />
       </Stack.Navigator>
     </NavigationContainer>
   );

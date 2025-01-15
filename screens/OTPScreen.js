@@ -10,7 +10,7 @@ export default function OTPScreen({ navigation }) {
     try {
       const response = await axios.post('http://192.168.1.102:5001/verify_otp', { email, otp });
       Alert.alert('Succès', 'Connexion réussie!');
-      navigation.navigate('Home');
+      navigation.navigate('Homee');
     } catch (error) {
       Alert.alert('Erreur', error.response?.data?.error || 'Une erreur est survenue');
     }
