@@ -151,19 +151,21 @@ export default function HomeScreen() {
       <Button title="Envoyer l'image" onPress={uploadImage} />
 
       {ocrResult && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Résultats OCR :</Text>
-          {Object.entries(ocrResult).map(([key, value]) => (
-            <Text key={key} style={styles.resultText}>
-              <Text style={styles.fieldName}>{key}:</Text> {value}
-            </Text>
-          ))}
-        </View>
-      )}
+  <View style={styles.resultContainer}>
+    <Text style={styles.resultTitle}>Résultats OCR :</Text>
+    {Object.entries(ocrResult).map(([key, value]) => (
+      <View key={key} style={styles.resultRow}>
+        <Text style={styles.fieldName}>{key}:</Text>
+        <Text style={styles.fieldValue}> {value}</Text>
+      </View>
+    ))}
+  </View>
+)}
+
+
     </ScrollView>
   );
-}
-const styles = StyleSheet.create({
+}const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -190,19 +192,41 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     marginTop: 20,
-    alignItems: 'flex-start',
     width: '100%',
+    paddingHorizontal: 10,
   },
   resultTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
-  resultText: {
-    fontSize: 16,
-    marginBottom: 5,
+  resultRow: {
+    flexDirection: 'row', // Aligne les éléments horizontalement
+    justifyContent: 'space-between', // Espace entre le champ et la valeur
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF', // Fond blanc
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#CFD8DC', // Bordure gris clair
   },
   fieldName: {
     fontWeight: 'bold',
+    fontSize: 16,
+    color: '#455A64', // Gris foncé
+  },
+  fieldValue: {
+    fontSize: 16,
+    color: '#616161', // Gris plus clair
   },
 });
