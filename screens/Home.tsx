@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Button, Image, Text, StyleSheet, Alert, ScrollView, Dimensions } from 'react-native';
+import { View, Button, Image, Text, StyleSheet, Alert, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -143,29 +143,37 @@ export default function HomeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Button title="Choisir depuis la galerie" onPress={pickImage} />
-      <Button title="Ouvrir la caméra" onPress={openCamera} />
-
-      {image && <Image source={{ uri: image }} style={styles.image} />}
-
-      <Button title="Envoyer l'image" onPress={uploadImage} />
-
-      {ocrResult && (
-  <View style={styles.resultContainer}>
-    <Text style={styles.resultTitle}>Résultats OCR :</Text>
-    {Object.entries(ocrResult).map(([key, value]) => (
-      <View key={key} style={styles.resultRow}>
-        <Text style={styles.fieldName}>{key}:</Text>
-        <Text style={styles.fieldValue}> {value}</Text>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.actionButton} onPress={pickImage}>
+          <Text style={styles.buttonText}>Galerie</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={openCamera}>
+          <Text style={styles.buttonText}>Caméra</Text>
+        </TouchableOpacity>
       </View>
-    ))}
-  </View>
-)}
-
-
+  
+      {image && <Image source={{ uri: image }} style={styles.image} />}
+  
+      <TouchableOpacity style={styles.uploadButton} onPress={uploadImage}>
+        <Text style={styles.uploadButtonText}>Enregistrer</Text>
+      </TouchableOpacity>
+  
+      {ocrResult && (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultTitle}>Résultats OCR :</Text>
+          {Object.entries(ocrResult).map(([key, value]) => (
+            <View key={key} style={styles.resultRow}>
+              <Text style={styles.fieldName}>{key}:</Text>
+              <Text style={styles.fieldValue}> {value}</Text>
+            </View>
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
-}const styles = StyleSheet.create({
+  
+}
+const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -173,22 +181,43 @@ export default function HomeScreen() {
     padding: 20,
     gap: 16,
   },
-  cameraContainer: {
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+  },
+  actionButton: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#1E88E5', // Bleu vif
+    paddingVertical: 10,
+    marginHorizontal: 5,
+    borderRadius: 8,
     alignItems: 'center',
   },
-  overlayFrame: {
-    borderColor: 'red',
-    borderWidth: 4,
-    position: 'absolute',
-    top: '35%',
-    borderRadius: 10,
+  buttonText: {
+    color: '#FFFFFF', // Blanc
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   image: {
     width: 300,
     height: 300,
     marginTop: 20,
+    borderRadius: 8,
+  },
+  uploadButton: {
+    backgroundColor: '#4CAF50', // Vert
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 2,
+    alignItems: 'center',
+  },
+  uploadButtonText: {
+    color: '#FFFFFF', // Blanc
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   resultContainer: {
     marginTop: 20,
@@ -202,10 +231,10 @@ export default function HomeScreen() {
     textAlign: 'center',
   },
   resultRow: {
-    flexDirection: 'row', // Aligne les éléments horizontalement
-    justifyContent: 'space-between', // Espace entre le champ et la valeur
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF', // Fond blanc
+    backgroundColor: '#FFFFFF',
     padding: 10,
     borderRadius: 8,
     marginBottom: 10,
@@ -218,15 +247,28 @@ export default function HomeScreen() {
     shadowRadius: 3,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#CFD8DC', // Bordure gris clair
+    borderColor: '#CFD8DC',
   },
   fieldName: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#455A64', // Gris foncé
+    color: '#455A64',
   },
   fieldValue: {
     fontSize: 16,
-    color: '#616161', // Gris plus clair
+    color: '#616161',
   },
+  overlayFrame: {
+    position: 'absolute',
+    borderWidth: 2,
+    borderColor: '#1E88E5', // Bleu vif
+    borderRadius: 10,
+  },
+  cameraContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000', // Fond noir pour l'affichage de la caméra
+  },
+  
 });
