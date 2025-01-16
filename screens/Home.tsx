@@ -10,12 +10,18 @@ export default function HomeScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [ocrResult, setOcrResult] = useState<{ [key: string]: string } | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<'type1' | 'type2' | null>(null);
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const navigation = useNavigation();
   const screenWidth = Dimensions.get('window').width;
   const frameWidth = screenWidth * 0.9;
   const frameHeight = (frameWidth / 1318) * 832;
+
+  const uploadUrls = {
+    type1: 'http://192.168.1.102:5000/upload_cin',
+    type2: 'http://192.168.1.102:5010/upload_cin',
+  };
 
   useEffect(() => {
     (async () => {
@@ -39,12 +45,19 @@ export default function HomeScreen() {
   const takePhoto = async () => {
     if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync();
-
+  
       if (photo) {
         const croppedImage = await cropImageToFrame(photo);
         setImage(croppedImage.uri);
         setCameraOpen(false);
         setOcrResult(null);
+  
+        // Vérifier le type sélectionné pour définir l'URL d'envoi
+        if (selectedType === 'type1') {
+          Alert.alert('Info', 'Photo capturée pour Type 1');
+        } else if (selectedType === 'type2') {
+          Alert.alert('Info', 'Photo capturée pour Type 2');
+        }
       } else {
         Alert.alert('Erreur', 'La capture de la photo a échoué.');
       }
@@ -98,6 +111,10 @@ export default function HomeScreen() {
       Alert.alert('Erreur', 'Veuillez capturer ou sélectionner une image.');
       return;
     }
+    if (!selectedType) {
+      Alert.alert('Erreur', 'Veuillez sélectionner un type avant d\'envoyer.');
+      return;
+    }
 
     let localUri = image;
     let filename = localUri.split('/').pop() || 'photo.jpg';
@@ -110,7 +127,7 @@ export default function HomeScreen() {
     } as any);
 
     try {
-      const response = await axios.post('http://192.168.1.102:5000/upload_cin', formData, {
+      const response = await axios.post(uploadUrls[selectedType], formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -124,8 +141,8 @@ export default function HomeScreen() {
       Alert.alert('Erreur', 'Échec de l\'envoi de l\'image');
       console.error(error);
     }
+    
   };
-
   if (cameraOpen) {
     return (
       <View style={styles.cameraContainer}>
@@ -140,9 +157,29 @@ export default function HomeScreen() {
       </View>
     );
   }
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.imageSelection}>
+        <TouchableOpacity onPress={() => setSelectedType('type1')}>
+          <Image
+            source={require('../assets/type1.jpg')}
+            style={[
+              styles.typeImage,
+              selectedType === 'type1' && styles.selectedImage,
+            ]}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSelectedType('type2')}>
+          <Image
+            source={require('../assets/type2.jpg')}
+            style={[
+              styles.typeImage,
+              selectedType === 'type2' && styles.selectedImage,
+            ]}
+          />
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.actionButton} onPress={pickImage}>
           <Text style={styles.buttonText}>Galerie</Text>
@@ -151,13 +188,13 @@ export default function HomeScreen() {
           <Text style={styles.buttonText}>Caméra</Text>
         </TouchableOpacity>
       </View>
-  
+
       {image && <Image source={{ uri: image }} style={styles.image} />}
-  
+
       <TouchableOpacity style={styles.uploadButton} onPress={uploadImage}>
         <Text style={styles.uploadButtonText}>Enregistrer</Text>
       </TouchableOpacity>
-  
+
       {ocrResult && (
         <View style={styles.resultContainer}>
           <Text style={styles.resultTitle}>Résultats OCR :</Text>
@@ -171,15 +208,29 @@ export default function HomeScreen() {
       )}
     </ScrollView>
   );
-  
 }
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    gap: 16,
+  },
+  imageSelection: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  typeImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#ccc',
+  },
+  selectedImage: {
+    borderColor: '#1E88E5',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -189,14 +240,14 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: '#1E88E5', // Bleu vif
+    backgroundColor: '#1E88E5',
     paddingVertical: 10,
     marginHorizontal: 5,
     borderRadius: 8,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#FFFFFF', // Blanc
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -207,15 +258,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   uploadButton: {
-    backgroundColor: '#4CAF50', // Vert
+    backgroundColor: '#4CAF50',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 8,
-    marginTop: 2,
+    marginTop: 20,
     alignItems: 'center',
   },
   uploadButtonText: {
-    color: '#FFFFFF', // Blanc
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -238,14 +289,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 2,
     borderWidth: 1,
     borderColor: '#CFD8DC',
   },
@@ -270,5 +313,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#000', // Fond noir pour l'affichage de la caméra
   },
-  
 });
